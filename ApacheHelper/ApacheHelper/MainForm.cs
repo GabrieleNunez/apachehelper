@@ -129,14 +129,31 @@ namespace ApacheHelper
                 {
                     string[] directoryParts = Path.GetDirectoryName(dialog.SelectedPath).Split('\\');
                     string serverName = directoryParts[directoryParts.Length - 1].ToLower().Replace('-', '_').Replace(" ", "").Replace(".","_").Trim();
-                    
-                    // use our utility classes to add a HOSTS file entry and a VHOSTS entry at the same time
-                    WindowsHost.AddEntry("127.0.0.1", serverName);
-                    this.apacheUtility.CreateVHost(serverName, dialog.SelectedPath);
-        
-                    // add items to respective list boxes
-                    hostsListBox.Items.Add("127.0.0.1 " + serverName);
-                    vhostListBox.Items.Add(serverName);
+
+                    // populate our default values now
+                    VhostSettings defaultSettings = new VhostSettings();
+                    defaultSettings.ServerName = serverName;
+                    defaultSettings.PublicRoot = dialog.SelectedPath;
+                    defaultSettings.LogLocation = dialog.SelectedPath;
+                    defaultSettings.ServerAdmin = "admin@localhost";
+
+                    // pop a dialog open to configure vhost
+                    using (VhostForm vhostDialog = new VhostForm(defaultSettings))
+                    {
+                        if (vhostDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            VhostSettings settings = vhostDialog.Settings;
+
+                            // use our utility classes to add a HOSTS file entry and a VHOSTS entry at the same time
+                            WindowsHost.AddEntry("127.0.0.1", settings.ServerName);
+                            this.apacheUtility.CreateVHost(settings);
+                            
+                            // add items to respective list boxes
+                            hostsListBox.Items.Add("127.0.0.1 " + settings.ServerName);
+                            vhostListBox.Items.Add(serverName);
+                        }
+                    }
+
                 }
             }
         }

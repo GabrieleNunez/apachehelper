@@ -148,20 +148,20 @@ namespace ApacheHelper
         /// <summary>
         /// Creates a VHOST entry based on supplied parameters
         /// </summary>
-        /// <param name="serverName">The name of the server</param>
+        /// <param name="settings">Setting configurations</param>
         /// <param name="documentRoot">Where are we storing it</param>
-        public void CreateVHost(string serverName, string publicRoot)
+        public void CreateVHost(VhostSettings settings)
         {
 
-            string basename = Directory.GetParent(publicRoot).FullName;
+            string basename = Directory.GetParent(settings.PublicRoot).FullName;
 
             StringBuilder entry = new StringBuilder();
             entry.AppendLine("<VirtualHost *:80>");
-            entry.AppendLine("\tServerAdmin admin@localhost.com");
-            entry.AppendLine("\tDocumentRoot \"" + publicRoot + "\"");
-            entry.AppendLine("\tServerName " + serverName);
-            entry.AppendLine("\tErrorLog \"" + basename + "\\error.log\"");
-            entry.AppendLine("\tCustomLog \"" + basename + "\\access.log\" combine");
+            entry.AppendLine("\tServerAdmin " + settings.ServerAdmin);
+            entry.AppendLine("\tDocumentRoot \"" + settings.PublicRoot + "\"");
+            entry.AppendLine("\tServerName " + settings.ServerName);
+            entry.AppendLine("\tErrorLog \"" + settings.LogLocation + "\\error.log\"");
+            entry.AppendLine("\tCustomLog \"" + settings.LogLocation + "\\access.log\" combined");
             entry.AppendLine("</VirtualHost>");
 
             File.AppendAllText(this.vhosts, entry.ToString());
